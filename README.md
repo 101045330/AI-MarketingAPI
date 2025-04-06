@@ -1,4 +1,85 @@
-# erd
+# API Access to third party marketers involves following domains out of a another system:
+<pre>
++------------------+
+| Countries        |
++------------------+
+| id (PK)          |
+| name             |
+| code (UNIQUE)    |
+| is_active        |
+| ...              |
++------------------+
+        | 1:N
+        |
++------------------+
+| Cities           |
++------------------+
+| id (PK)          |
+| name             |
+| country_id (FK)  |
+| is_active        |
+| ...              |
++------------------+
+        | 1:N
+        |
++------------------+
+| Institutions     |
++------------------+
+| id (PK)          |
+| name             |
+| city_id (FK)     |
+| is_active        |
+| ...              |
++------------------+
+        | 1:N
+        |
++------------------+
+| Faculties        |
++------------------+
+| id (PK)          |
+| institution_id (FK)|
+| name             |
+| is_active        |
+| ...              |
++------------------+
+        | 1:N
+        |
++------------------+
+| Programs         |
++------------------+
+| id (PK)          |
+| faculty_id (FK)  |
+| name             |
+| is_active        |
+| ...              |
++------------------+
+        | 1:N
+        |
++------------------+
+| ProgramReviews   |
++------------------+
+| id (PK)          |
+| program_id (FK)  |
+| participant_id (FK)|
+| rating           |
+| comment          |
+| ...              |
++------------------+
+        | N:1     N:1
+        |
++------------------+
+| Users            |
++------------------+
+| id (PK)          |
+| full_name        |
+| email (UNIQUE)   |
+| country_id (FK)  |
+| city_id (FK)     |
+| is_active        |
+| ...              |
++------------------+
+</pre>
+# Application as a whole 
 <pre>
 +--------------+        +-------------+        +-------------+
 | Countries    |        | Cities      |        | Institutions|
@@ -117,4 +198,8 @@
 | ... (Other columns from   |
 |     previous User ERD)   |
 +--------------------------+
+
+
+
+      
 </pre>
