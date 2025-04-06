@@ -79,6 +79,59 @@
 | ...              |
 +------------------+
 </pre>
+
+
+# Section where webusers (third party marketers) gather and feast the data drill
+
+<pre>      
++--------------------------+
+| WebUsers                 |
++--------------------------+
+| id (PK, INT)             |
+|--------------------------|
+| //  Core Information     // |
+|--------------------------|
+| full_name (VARCHAR)      |
+| email (VARCHAR, UNIQUE)  |
+| password (VARCHAR)       | //  Hashed!
+|--------------------------|
+| //  Registration &       // |
+| //  Activation           // |
+|--------------------------|
+| registration_date (DATE) |
+| activation_token (VARCHAR) | //  For email verification
+| activation_expiry (DATETIME) |
+| is_active (TINYINT)      | //  0: Not active, 1: Active
+|--------------------------|
+| //  Access Control       // |
+|--------------------------|
+| access_code (VARCHAR)    | //  30-day access code
+| access_code_expiry (DATETIME) |
+| daily_search_limit (INT) | //  e.g., 1000
+| daily_search_count (INT) | //  Current day's count
+| last_search_date (DATE)  | //  Last day searches were made
+|--------------------------|
+| //  Queue Management     // |
+|--------------------------|
+| registration_queue_date (DATE) | //  Date user joined queue
+|--------------------------|
+| //  Timestamps           // |
+|--------------------------|
+| created_at (DATETIME)    |
+| updated_at (DATETIME)    |
+|--------------------------|
+| //  Other User Data      // |
+| //  (Optional)           // |
+|--------------------------|
+| ... (Other columns from   |
+|     previous User ERD)   |
++--------------------------+
+
+      
+</pre>
+
+
+
 # Application as a whole 
 <pre>
 +--------------+        +-------------+        +-------------+
@@ -154,52 +207,5 @@
 | value      |
 | ...        |
 +------------+
-
-      
-+--------------------------+
-| WebUsers                 |
-+--------------------------+
-| id (PK, INT)             |
-|--------------------------|
-| //  Core Information     // |
-|--------------------------|
-| full_name (VARCHAR)      |
-| email (VARCHAR, UNIQUE)  |
-| password (VARCHAR)       | //  Hashed!
-|--------------------------|
-| //  Registration &       // |
-| //  Activation           // |
-|--------------------------|
-| registration_date (DATE) |
-| activation_token (VARCHAR) | //  For email verification
-| activation_expiry (DATETIME) |
-| is_active (TINYINT)      | //  0: Not active, 1: Active
-|--------------------------|
-| //  Access Control       // |
-|--------------------------|
-| access_code (VARCHAR)    | //  30-day access code
-| access_code_expiry (DATETIME) |
-| daily_search_limit (INT) | //  e.g., 1000
-| daily_search_count (INT) | //  Current day's count
-| last_search_date (DATE)  | //  Last day searches were made
-|--------------------------|
-| //  Queue Management     // |
-|--------------------------|
-| registration_queue_date (DATE) | //  Date user joined queue
-|--------------------------|
-| //  Timestamps           // |
-|--------------------------|
-| created_at (DATETIME)    |
-| updated_at (DATETIME)    |
-|--------------------------|
-| //  Other User Data      // |
-| //  (Optional)           // |
-|--------------------------|
-| ... (Other columns from   |
-|     previous User ERD)   |
-+--------------------------+
-
-
-
-      
 </pre>
+
