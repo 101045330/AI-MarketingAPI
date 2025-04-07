@@ -130,7 +130,48 @@
       
 </pre>
 
+# Stored procedures
+<pre> 
+--  Get Countries
+CREATE PROCEDURE sp_get_countries()
+BEGIN
+    SELECT id, name, code FROM Countries WHERE is_active = 1;
+END;
 
+--  Get Cities by Country
+CREATE PROCEDURE sp_get_cities_by_country(IN p_country_id INT)
+BEGIN
+    SELECT id, name FROM Cities WHERE country_id = p_country_id AND is_active = 1;
+END;
+
+--  Get Institutions by City
+CREATE PROCEDURE sp_get_institutions_by_city(IN p_city_id INT)
+BEGIN
+    SELECT id, name FROM Institutions WHERE city_id = p_city_id AND is_active = 1;
+END;
+
+--  Get Faculties by Institution
+CREATE PROCEDURE sp_get_faculties_by_institution(IN p_institution_id INT)
+BEGIN
+    SELECT id, name FROM Faculties WHERE institution_id = p_institution_id AND is_active = 1;
+END;
+
+--  Get Programs by Faculty
+CREATE PROCEDURE sp_get_programs_by_faculty(IN p_faculty_id INT)
+BEGIN
+    SELECT id, name, code, details FROM Programs WHERE faculty_id = p_faculty_id AND is_active = 1;
+END;
+
+--  Get Reviews by Program
+CREATE PROCEDURE sp_get_reviews_by_program(IN p_program_id INT)
+BEGIN
+    SELECT pr.id, pr.rating, pr.comment, p.name as participant_name
+    FROM ProgramReviews pr
+    JOIN Participants p ON pr.participant_id = p.id
+    WHERE pr.program_id = p_program_id;
+END;
+
+</pre>
 
 # Application as a whole 
 <pre>
