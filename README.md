@@ -475,3 +475,200 @@ MetaData "0..1" -- "*" Attachments : relates to
 
 @enduml
 </pre>
+
+# Stored Procedures
+
+<pre>
+        --  1. Register User
+CREATE PROCEDURE sp_register_web_user (
+    IN p_full_name VARCHAR(255),
+    IN p_email VARCHAR(255),
+    IN p_password VARCHAR(255),  --  Remember to hash this!
+    OUT p_user_id INT,
+    OUT p_error_message VARCHAR(255)
+)
+BEGIN
+    DECLARE today DATE;
+    DECLARE user_count INT;
+
+    SET today = CURDATE();
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        SET p_user_id = NULL;
+        SET p_error_message = 'An error occurred during registration.';
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    --  Check daily registration limit
+    SELECT COUNT(*) INTO user_count FROM WebUsers WHERE DATE(created_at) = today;
+    IF user_count >= 100 THEN
+        --  Add to queue
+        INSERT INTO WebUsers (full_name, email, password, registration_date, registration_queue_date, is_active)
+        VALUES (p_full_name, p_email, p_password, today, today, 0);
+        SET p_user_id = LAST_INSERT_ID();
+        SET p_error_message = 'Daily registration limit reached. You are in the queue.';
+    ELSE
+        --  Register user immediately
+        INSERT INTO WebUsers (full_name, email, password, registration_date, activation_token, activation_expiry, is_active)
+        VALUES (p_full_name, p_email, p_password, today, UUID(), DATE_ADD(NOW(), INTERVAL 24 HOUR), 0);
+        SET p_user_id = LAST_INSERT_ID();
+        SET p_error_message = NULL;
+    END IF;
+
+    COMMIT;
+END;
+
+--  2. Activate User
+CREATE PROCEDURE sp_activate_web_user (
+    IN p_activation_token VARCHAR(255),
+    OUT p_user_id INT,
+    OUT p_error_message VARCHAR(255)
+)
+BEGIN
+    DECLARE now DATETIME;
+    DECLARE new_access_code VARCHAR(255);
+
+    SET now = NOW();
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        SET p_user_id = NULL;
+        SET p_error_message = 'An error occurred during activation.';
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    SELECT id INTO p_user_id
+    FROM WebUsers
+    WHERE activation_token = p_activation_token AND activation_expiry > now;
+
+    IF p_user_id IS NOT NULL THEN
+        --  Generate access code
+        SET new_access_code = UUID();  --  Or your preferred method
+        UPDATE WebUsers
+        SET is_active = 1,
+            access_code = new_access_code,
+            access_code_expiry = DATE_ADD(now, INTERVAL 30 DAY),
+            activation_token = NULL,  --  Clear the token
+            activation_expiry = NULL
+        WHERE id = p_user_id;
+        SET p_error_message = NULL;
+    ELSE
+        SET p_user_id = NULL;
+        SET p_error_message = 'Invalid or expired activation token.';
+    END IF;
+
+    COMMIT;
+END;
+
+--  3. Increment Search Count
+CREATE PROCEDURE sp_increment_search_count (
+    IN p_user_id INT,
+    OUT p_allowed BOOLEAN,
+    OUT p_error_message VARCHAR(255)
+)
+BEGIN
+    DECLARE today DATE;
+    DECLARE user_search_limit INT;
+    DECLARE user_search_count INT;
+    DECLARE user_last_search_date DATE;
+
+    SET today = CURDATE();
+    SET p_allowed = FALSE;
+    SET p_error_message = NULL;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        SET p_allowed = FALSE;
+        SET p_error_message = 'An error occurred while checking search limits.';
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    SELECT daily_search_limit, daily_search_count, last_search_date
+    INTO user_search_limit, user_search_count, user_last_search_date
+    FROM WebUsers
+    WHERE id = p_user_id;
+
+    --  Reset daily count if it's a new day
+    IF user_last_search_date IS NULL OR user_last_search_date < today THEN
+        UPDATE WebUsers
+        SET daily_search_count = 0,
+            last_search_date = today
+        WHERE id = p_user_id;
+        SET user_search_count = 0;  --  Reset local variable
+    END IF;
+
+    --  Check if search is allowed
+    IF user_search_count < user_search_limit THEN
+        UPDATE WebUsers
+        SET daily_search_count = daily_search_count + 1,
+            last_search_date = today
+        WHERE id = p_user_id;
+        SET p_allowed = TRUE;
+    ELSE
+        SET p_allowed = FALSE;
+        SET p_error_message = 'Daily search limit exceeded.';
+    END IF;
+
+    COMMIT;
+END;
+
+--  4.  Daily Queue Processing (Example -  Needs Scheduling)
+CREATE PROCEDURE sp_process_registration_queue()
+BEGIN
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE current_user_id INT;
+    DECLARE cur CURSOR FOR
+        SELECT id
+        FROM WebUsers
+        WHERE registration_queue_date IS NOT NULL
+        ORDER BY registration_queue_date
+        LIMIT 100;  --  Process up to 100 users
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+    END;
+
+    START TRANSACTION;
+
+    OPEN cur;
+
+    read_loop: LOOP
+        FETCH cur INTO current_user_id;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+
+        --  Generate activation token and set expiry
+        UPDATE WebUsers
+        SET activation_token = UUID(),
+            activation_expiry = DATE_ADD(NOW(), INTERVAL 24 HOUR),
+            registration_queue_date = NULL  --  Clear queue flag
+        WHERE id = current_user_id;
+
+        --  (Send activation email here -  This is application logic, not SQL)
+
+    END LOOP;
+
+    CLOSE cur;
+
+    COMMIT;
+END;
+
+--  5.  Daily Reset (Example -  Needs Scheduling)
+CREATE PROCEDURE sp_reset_daily_search_counts()
+BEGIN
+    UPDATE WebUsers
+    SET daily_search_count = 0,
+        last_search_date = CURDATE();
+END;
+</pre>
