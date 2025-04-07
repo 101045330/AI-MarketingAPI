@@ -688,3 +688,107 @@ BEGIN
         last_search_date = CURDATE();
 END;
 </pre>
+
+# Script to add 100 records in few tables
+
+<pre>
+        --  SQL to insert 100 records into Programs, Participants, and Reviews
+
+--  Important: This script assumes you have a 'Batches' table and at least one batch record (id=1 in this case)
+
+--  1. Insert 100 Records into Programs Table
+DROP TEMPORARY TABLE IF EXISTS temp_programs;
+CREATE TEMPORARY TABLE temp_programs (n INT);
+INSERT INTO temp_programs VALUES
+(1), (2), (3), (4), (5), (6), (7), (8), (9), (10),
+(11), (12), (13), (14), (15), (16), (17), (18), (19), (20),
+(21), (22), (23), (24), (25), (26), (27), (28), (29), (30),
+(31), (32), (33), (34), (35), (36), (37), (38), (39), (40),
+(41), (42), (43), (44), (45), (46), (47), (48), (49), (50),
+(51), (52), (53), (54), (55), (56), (57), (58), (59), (60),
+(61), (62), (63), (64), (65), (66), (67), (68), (69), (70),
+(71), (72), (73), (74), (75), (76), (77), (78), (79), (80),
+(81), (82), (83), (84), (85), (86), (87), (88), (89), (90),
+(91), (92), (93), (94), (95), (96), (97), (98), (99), (100);
+
+INSERT INTO Programs (faculty_id, name, is_active, code, details, aliasif_any, timestamp, cost, intake, requirements, created_date, updated_date)
+SELECT
+    1, -- Assuming faculty_id = 1 for all, adjust as needed
+    CONCAT('Program ', n),
+    1,
+    CONCAT('PROG', LPAD(n, 3, '0')),
+    'A four-year undergraduate program...',
+    'BCS_Alias',
+    NOW(),
+    20000.00,
+    'Fall',
+    'High school diploma...',
+    CURDATE(),
+    NOW()
+FROM temp_programs;
+
+DROP TEMPORARY TABLE temp_programs; -- Clean up
+
+-- 2. Insert 100 Records into Participants Table
+DROP TEMPORARY TABLE IF EXISTS temp_participants;
+CREATE TEMPORARY TABLE temp_participants (n INT);
+INSERT INTO temp_participants VALUES
+(1), (2), (3), (4), (5), (6), (7), (8), (9), (10),
+(11), (12), (13), (14), (15), (16), (17), (18), (19), (20),
+(21), (22), (23), (24), (25), (26), (27), (28), (29), (30),
+(31), (32), (33), (34), (35), (36), (37), (38), (39), (40),
+(41), (42), (43), (44), (45), (46), (47), (48), (49), (50),
+(51), (52), (53), (54), (55), (56), (57), (58), (59), (60),
+(61), (62), (63), (64), (65), (66), (67), (68), (69), (70),
+(71), (72), (73), (74), (75), (76), (77), (78), (79), (80),
+(81), (82), (83), (84), (85), (86), (87), (88), (89), (90),
+(91), (92), (93), (94), (95), (96), (97), (98), (99), (100);
+
+INSERT INTO Participants (batch_id, mode, name, is_active, code, details, alias_if_any, timestamp, email, phone, demography, biography, insurance, disability, extra)
+SELECT
+    1, -- Assuming batch_id = 1 for all, adjust if needed
+    'Full-time',
+    CONCAT('Participant ', n),
+    1,
+    CONCAT('ALICE', LPAD(n, 3, '0')),
+    'CS Student',
+    'Alice',
+    NOW(),
+    CONCAT('alice', n, '@example.com'),
+    '123-456-7890',
+    '{"race": "Caucasian"}',
+    'Enjoys coding',
+    'Insured',
+    'None',
+    '{"notes": "Excellent"}'
+FROM temp_participants;
+
+DROP TEMPORARY TABLE temp_participants;
+
+-- 3. Insert 100 Records into Reviews Table
+DROP TEMPORARY TABLE IF EXISTS temp_reviews;
+CREATE TEMPORARY TABLE temp_reviews (n INT);
+INSERT INTO temp_reviews VALUES
+(1), (2), (3), (4), (5), (6), (7), (8), (9), (10),
+(11), (12), (13), (14), (15), (16), (17), (18), (19), (20),
+(21), (22), (23), (24), (25), (26), (27), (28), (29), (30),
+(31), (32), (33), (34), (35), (36), (37), (38), (39), (40),
+(41), (42), (43), (44), (45), (46), (47), (48), (49), (50),
+(51), (52), (53), (54), (55), (56), (57), (58), (59), (60),
+(61), (62), (63), (64), (65), (66), (67), (68), (69), (70),
+(71), (72), (73), (74), (75), (76), (77), (78), (79), (80),
+(81), (82), (83), (84), (85), (86), (87), (88), (89), (90),
+(91), (92), (93), (94), (95), (96), (97), (98), (99), (100);
+
+INSERT INTO Reviews (program_id, participant_id, review, rating, created_date, updated_date)
+SELECT
+    1 + (n % 100), -- program_id between 1 and 100
+    1 + (n % 100), -- participant_id between 1 and 100
+    'This program was excellent. I learned a lot.',
+    5,
+    CURDATE(),
+    NOW()
+FROM temp_reviews;
+
+DROP TEMPORARY TABLE temp_reviews;
+</pre>
