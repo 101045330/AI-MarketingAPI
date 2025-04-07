@@ -463,8 +463,11 @@ class MetaData {
     deleted_by : VARCHAR
     deleted_note : TEXT
 }
+</pre>
 
-' Relationships
+# Relationships
+
+<pre> 
 Countries "1" -- "*" Cities : has
 Cities "*" -- "1" Countries : belongs to
 Countries "1" -- "*" Users : has
