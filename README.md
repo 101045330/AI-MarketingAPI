@@ -254,215 +254,187 @@ END;
 
 <pre>
 
-        class Countries {
-    id : INT (PK)
-    name : VARCHAR
-    code : VARCHAR (UNIQUE)
-    is_active : TINYINT
-    continent : VARCHAR
-    alias_if_any : VARCHAR
-    timestamp : DATETIME
-}
+        --  SQL Script for Program Review System Database
 
-class Cities {
-    id : INT (PK)
-    name : VARCHAR
-    country_id : INT (FK)
-    latitude : DECIMAL
-    longitude : DECIMAL
-    is_active : TINYINT
-    alias_if_any : VARCHAR
-    timestamp : DATETIME
-}
+--  This script is designed for MySQL (adjust syntax for other databases if needed)
 
-class Institutions {
-    id : INT (PK)
-    name : VARCHAR
-    is_active : TINYINT
-    code : VARCHAR
-    details : TEXT
-    city_id : INT (FK)
-    alias_if_any : VARCHAR
-    timestamp : DATETIME
-}
+--  1. Drop Existing Tables (Careful with this in production!)
+--  This is for development/testing.  Remove or comment out in production.
 
-class Faculties {
-    id : INT (PK)
-    institution_id : INT (FK)
-    name : VARCHAR
-    is_active : TINYINT
-    code : VARCHAR
-    details : TEXT
-    alias_if_any : VARCHAR
-    timestamp : DATETIME
-}
+DROP TABLE IF EXISTS Reviews;
+DROP TABLE IF EXISTS Programs;
+DROP TABLE IF EXISTS Faculties;
+DROP TABLE IF EXISTS Locations;
+DROP TABLE IF EXISTS Institutions;
+DROP TABLE IF EXISTS Participants;
+DROP TABLE IF EXISTS Web_Users;
+DROP TABLE IF EXISTS Cities;
+DROP TABLE IF EXISTS Countries;
 
-class Programs {
-    id : INT (PK)
-    faculty_id : INT (FK)
-    name : VARCHAR
-    is_active : TINYINT
-    code : VARCHAR
-    details : TEXT
-    alias_if_any : VARCHAR
-    timestamp : DATETIME
-    cost : DECIMAL
-    intake_season : VARCHAR
-    requirements : TEXT
-}
+--  2. Create Countries Table
+CREATE TABLE Countries (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    code VARCHAR(2) UNIQUE NOT NULL,
+    continent VARCHAR(50),
+    created_date DATE,
+    updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
 
-class ProgramReviews {
-    id : INT (PK)
-    program_id : INT (FK)
-    participant_id : INT (FK)
-    rating : INT
-    comment : TEXT
-    review_date : DATETIME
-}
+--  3. Create Cities Table
+CREATE TABLE Cities (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    country_id INT,
+    latitude DECIMAL(9,6),
+    longitude DECIMAL(9,6),
+    created_date DATE,
+    updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (country_id) REFERENCES Countries(id)
+);
 
-class Users {
-    id : INT (PK)
-    full_name : VARCHAR
-    email : VARCHAR (UNIQUE)
-    country_id : INT (FK)
-    city_id : INT (FK)
-    is_active : TINYINT
-    created_at : DATETIME
-    updated_at : DATETIME
-}
+--  4. Create Institutions Table
+CREATE TABLE Institutions (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    is_active TINYINT,
+    code VARCHAR(54),
+    details TEXT,
+    alias_if_anny VARCHAR(254),
+    timestamp TIMESTAMP
+);
 
-class Courses {
-    id : INT (PK)
-    name : VARCHAR
-    is_active : TINYINT
-    code : VARCHAR
-    details : TEXT
-    alias_if_any : VARCHAR
-    timestamp : DATETIME
-}
+--  5. Create Locations Table
+CREATE TABLE Locations (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    institution_id INT,
+    city_id INT,
+    address VARCHAR(255),
+    created_date DATE,
+    updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (institution_id) REFERENCES Institutions(id),
+    FOREIGN KEY (city_id) REFERENCES Cities(id),
+    UNIQUE (institution_id, city_id)
+);
 
-class Batches {
-    id : INT (PK)
-    program_id : INT (FK)
-    name : VARCHAR
-    is_active : TINYINT
-    code : VARCHAR
-    details : TEXT
-    alias_if_any : VARCHAR
-    timestamp : DATETIME
-    start_date : DATE
-    end_date : DATE
-}
+--  6. Create Faculties Table
+CREATE TABLE Faculties (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    institution_id INT,
+    name VARCHAR(254) NOT NULL,
+    is_active TINYINT,
+    code VARCHAR(54),
+    details TEXT,
+    aliasif_any VARCHAR(254),
+    timestamp TIMESTAMP,
+    FOREIGN KEY (institution_id) REFERENCES Institutions(id)
+);
 
-class BatchCourses {
-    id : INT (PK)
-    course_id : INT (FK)
-    batch_id : INT (FK)
-    name : VARCHAR
-    is_active : TINYINT
-    code : VARCHAR
-    details : TEXT
-    alias_jt_any : VARCHAR
-    timestamp : DATETIME
-}
+--  7. Create Programs Table
+CREATE TABLE Programs (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    faculty_id INT,
+    name VARCHAR(254) NOT NULL,
+    is_active TINYINT,
+    code VARCHAR(54),
+    details TEXT,
+    aliasif_any VARCHAR(254),
+    timestamp TIMESTAMP,
+    cost DECIMAL(10, 2),
+    intake VARCHAR(50),
+    requirements TEXT,
+    FOREIGN KEY (faculty_id) REFERENCES Faculties(id)
+);
 
-class Participants {
-    id : INT (PK)
-    batch_id : INT (FK)
-    mode : VARCHAR
-    name : VARCHAR
-    is_active : TINYINT
-    code : VARCHAR
-    details : TEXT
-    alias_if_any : VARCHAR
-    timestamp : DATETIME
-    email : VARCHAR
-    phone : VARCHAR
-    demography : TEXT
-    biography : TEXT
-    insurance : TEXT
-    disability : TEXT
-    extra : TEXT
-}
+--  8. Create Participants Table
+CREATE TABLE Participants (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    batch_id INT,
+    mode VARCHAR(54),
+    name VARCHAR(254),
+    is_active TINYINT,
+    code VARCHAR(54),
+    details TEXT,
+    alias_if_any VARCHAR(254),
+    timestamp TIMESTAMP,
+    email VARCHAR(254),
+    phone VARCHAR(45),
+    demography JSON,
+    biography JSON,
+    insurance JSON,
+    disability JSON,
+    extra JSON,
+    FOREIGN KEY (batch_id) REFERENCES Batches(id)
+);
 
-class Instructors {
-    id : INT (PK)
-    batch_course_id : INT (FK)
-    name : VARCHAR
-    is_active : TINYINT
-    code : VARCHAR
-    details : TEXT
-    alias_if_any : VARCHAR
-    timestamp : DATETIME
-    email : VARCHAR
-    phone : VARCHAR
-}
+--  9. Create Reviews Table
+CREATE TABLE Reviews (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    program_id INT,
+    participant_id INT,
+    review TEXT,
+    rating INT,
+    created_date DATE,
+    updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (program_id) REFERENCES Programs(id),
+    FOREIGN KEY (participant_id) REFERENCES Participants(id)
+);
 
-class Assignments {
-    id : INT (PK)
-    batch_courses_id : INT (FK)
-    name : VARCHAR
-    is_active : TINYINT
-    code : VARCHAR
-    details : TEXT
-    alias_if_any : VARCHAR
-    timestamp : DATETIME
-}
+--  10. Create Web_Users Table
+CREATE TABLE Web_Users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    full_name VARCHAR(255),
+    email VARCHAR(255) UNIQUE,
+    is_active BOOLEAN,
+    password VARCHAR(255),
+    created_date DATE,
+    updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    api_key VARCHAR(255) UNIQUE,
+    api_key_secret VARCHAR(255),
+    api_key_issued_date DATE,
+    api_key_expiry_date DATE,
+    api_key_status VARCHAR(20),
+    INDEX (api_key),
+    INDEX (email)
+);
 
-class Submissions {
-    id : INT (PK)
-    assignment_id : INT (FK)
-    participant_id : INT (FK)
-    name : VARCHAR
-    is_active : TINYINT
-    code : VARCHAR
-    details : TEXT
-    alias_if_any : VARCHAR
-    timestamp : DATETIME
-    submission_date : DATETIME
-}
+--  11. Create Batches Table
+CREATE TABLE Batches (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    program_id INT,
+    name VARCHAR(254),
+    is_active TINYINT,
+    code VARCHAR(54),
+    details TEXT,
+    aliasif_any VARCHAR(254),
+    timestamp TIMESTAMP,
+    start_date DATE,
+    end_date DATE,
+    FOREIGN KEY (program_id) REFERENCES Programs(id)
+);
 
-class AssignmentInstructors {
-    id : INT (PK)
-    assignment_id : INT (FK)
-    instructor_id : INT (FK)
-    name : VARCHAR
-    is_active : TINYINT
-    code : VARCHAR
-    details : TEXT
-    alias_if_any : VARCHAR
-    timestamp : DATETIME
-    email : VARCHAR
-    phone : VARCHAR
-}
+-- 12. Create Courses Table
+CREATE TABLE Courses (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(254),
+    is_active TINYINT,
+    code VARCHAR(54),
+    details TEXT,
+    allasIf_any VARCHAR(254),
+    timestamp TIMESTAMP
+);
 
-class Attachments {
-    id : INT (PK)
-    submission_id : INT (FK)
-    name : VARCHAR
-    is_active : TINYINT
-    code : VARCHAR
-    details : TEXT
-    alias_if_any : VARCHAR
-    timestamp : DATETIME
-    file : BLOB
-}
-
-class MetaData {
-    id : INT (PK)
-    which_table : VARCHAR
-    what_record : INT
-    key : VARCHAR
-    value : TEXT
-    is_active : TINYINT
-    code : VARCHAR
-    GetAlls : TEXT
-    alias_if_any : VARCHAR
-    timestamp : DATETIME
-    deleted_date : DATETIME
-    deleted_by : VARCHAR
-    deleted_note : TEXT
-}
+-- 13. Create BatchCourses Table
+CREATE TABLE BatchCourses (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    course_id INT,
+    batch_id INT,
+    name VARCHAR(254),
+    is_active TINYINT,
+    code VARCHAR(54),
+    details TEXT,
+    alias_jt_any VARCHAR(254),
+    timestamp TIMESTAMP,
 </pre>
 
 # Relationships
