@@ -130,6 +130,266 @@
       
 </pre>
 
+<pre></pre>
+
+## Description
+API for managing educational programs and their reviews.
+
+## Base URL
+The base URL for this API is not explicitly defined in the provided OpenAPI specification.
+
+## Endpoints
+
+### 1. Default Route
+
+#### `/`
+**HTTP Method:** `GET`
+
+**Summary:** Default route
+
+**Description:** This endpoint provides a user guide and potentially links to other relevant resources for using the API.
+
+**Responses:**
+| HTTP Status Code | Description             | Content Type     | Schema                                      |
+|------------------|-------------------------|------------------|---------------------------------------------|
+| `200`            | User guide and links    | `application/json` | `{ "info": { "type": "string", "example": "user guide and links goes here" } }` |
+
+### 2. List Active Countries
+
+#### `/v1/countries/list-active`
+**HTTP Method:** `GET`
+
+**Summary:** List active countries
+
+**Description:** Retrieves a list of currently active countries.
+
+**Responses:**
+| HTTP Status Code | Description             | Content Type     | Schema                                                                 |
+|------------------|-------------------------|------------------|------------------------------------------------------------------------|
+| `200`            | List of active countries | `application/json` | `{ "status": { "type": "string", "example": "success" }, "data": { "type": "array", "items": { "type": "object" } } }` |
+| `500`            | Internal Server Error   | `application/json` | `{ "status": { "type": "string", "example": "error" }, "message": { "type": "string" } }` |
+
+### 3. List Active Cities
+
+#### `/v1/cities/list-active`
+**HTTP Method:** `GET`
+
+**Summary:** List active cities based on country ID
+
+**Description:** Retrieves a list of active cities within a specified country.
+
+**Parameters:**
+| Name      | In   | Type    | Required | Description         |
+|-----------|------|---------|----------|---------------------|
+| `countryId` | query | integer | true     | ID of the country   |
+
+**Responses:**
+| HTTP Status Code | Description          | Content Type     | Schema                                                                 |
+|------------------|----------------------|------------------|------------------------------------------------------------------------|
+| `200`            | List of active cities | `application/json` | `{ "status": { "type": "string", "example": "success" }, "data": { "type": "array", "items": { "type": "object" } } }` |
+| `500`            | Internal Server Error| `application/json` | `{ "status": { "type": "string", "example": "error" }, "message": { "type": "string" } }` |
+
+### 4. List Active Institutions
+
+#### `/v1/institutions/list-active`
+**HTTP Method:** `GET`
+
+**Summary:** List active institutions based on city ID
+
+**Description:** Retrieves a list of active educational institutions within a specified city.
+
+**Parameters:**
+| Name    | In   | Type    | Required | Description       |
+|---------|------|---------|----------|-------------------|
+| `cityId`  | query | integer | true     | ID of the city    |
+
+**Responses:**
+| HTTP Status Code | Description                | Content Type     | Schema                                                                 |
+|------------------|----------------------------|------------------|------------------------------------------------------------------------|
+| `200`            | List of active institutions | `application/json` | `{ "status": { "type": "string", "example": "success" }, "data": { "type": "array", "items": { "type": "object" } } }` |
+| `500`            | Internal Server Error      | `application/json` | `{ "status": { "type": "string", "example": "error" }, "message": { "type": "string" } }` |
+
+### 5. List Active Faculties
+
+#### `/v1/faculties/list-active`
+**HTTP Method:** `GET`
+
+**Summary:** List active faculties based on institution ID
+
+**Description:** Retrieves a list of active faculties within a specified educational institution.
+
+**Parameters:**
+| Name          | In   | Type    | Required | Description            |
+|---------------|------|---------|----------|------------------------|
+| `institutionId` | query | integer | true     | ID of the institution  |
+
+**Responses:**
+| HTTP Status Code | Description              | Content Type     | Schema                                                                 |
+|------------------|--------------------------|------------------|------------------------------------------------------------------------|
+| `200`            | List of active faculties | `application/json` | `{ "status": { "type": "string", "example": "success" }, "data": { "type": "array", "items": { "type": "object" } } }` |
+| `500`            | Internal Server Error    | `application/json` | `{ "status": { "type": "string", "example": "error" }, "message": { "type": "string" } }` |
+
+### 6. List Active Programs
+
+#### `/v1/programs/list-active`
+**HTTP Method:** `GET`
+
+**Summary:** List active programs based on faculty ID
+
+**Description:** Retrieves a list of active educational programs within a specified faculty.
+
+**Parameters:**
+| Name        | In   | Type    | Required | Description         |
+|-------------|------|---------|----------|---------------------|
+| `facultyId` | query | integer | true     | ID of the faculty   |
+
+**Responses:**
+| HTTP Status Code | Description            | Content Type     | Schema                                                                 |
+|------------------|------------------------|------------------|------------------------------------------------------------------------|
+| `200`            | List of active programs | `application/json` | `{ "status": { "type": "string", "example": "success" }, "data": { "type": "array", "items": { "type": "object" } } }` |
+| `500`            | Internal Server Error  | `application/json` | `{ "status": { "type": "string", "example": "error" }, "message": { "type": "string" } }` |
+
+### 7. List Active Participants
+
+#### `/v1/participants/list-active`
+**HTTP Method:** `GET`
+
+**Summary:** List active participants based on the year
+
+**Description:** Retrieves a list of participants who were active in a specific year.
+
+**Parameters:**
+| Name   | In   | Type    | Required | Description                 |
+|--------|------|---------|----------|-----------------------------|
+| `year` | query | integer | true     | Year to filter participants |
+
+**Responses:**
+| HTTP Status Code | Description                | Content Type     | Schema                                                                 |
+|------------------|----------------------------|------------------|------------------------------------------------------------------------|
+| `200`            | List of active participants | `application/json` | `{ "status": { "type": "string", "example": "success" }, "data": { "type": "array", "items": { "type": "object" } } }` |
+| `500`            | Internal Server Error      | `application/json` | `{ "status": { "type": "string", "example": "error" }, "message": { "type": "string" } }` |
+
+### 8. List All Participants
+
+#### `/v1/participants/list-all`
+**HTTP Method:** `GET`
+
+**Summary:** List all participants based on the year
+
+**Description:** Retrieves a list of all participants for a specific year, regardless of their active status.
+
+**Parameters:**
+| Name   | In   | Type    | Required | Description                 |
+|--------|------|---------|----------|-----------------------------|
+| `year` | query | integer | true     | Year to filter participants |
+
+**Responses:**
+| HTTP Status Code | Description             | Content Type     | Schema                                                                 |
+|------------------|-------------------------|------------------|------------------------------------------------------------------------|
+| `200`            | List of all participants | `application/json` | `{ "status": { "type": "string", "example": "success" }, "data": { "type": "array", "items": { "type": "object" } } }` |
+| `500`            | Internal Server Error   | `application/json` | `{ "status": { "type": "string", "example": "error" }, "message": { "type": "string" } }` |
+
+### 9. List Reviews by Participant
+
+#### `/v1/reviews/list-by-participant`
+**HTTP Method:** `GET`
+
+**Summary:** List reviews by a participant
+
+**Description:** Retrieves a list of reviews written by a specific participant.
+
+**Parameters:**
+| Name          | In   | Type    | Required | Description             |
+|---------------|------|---------|----------|-------------------------|
+| `participantId` | query | integer | true     | ID of the participant   |
+
+**Responses:**
+| HTTP Status Code | Description                       | Content Type     | Schema                                                                 |
+|------------------|-----------------------------------|------------------|------------------------------------------------------------------------|
+| `200`            | List of reviews by the participant | `application/json` | `{ "status": { "type": "string", "example": "success" }, "data": { "type": "array", "items": { "type": "object" } } }` |
+| `500`            | Internal Server Error             | `application/json` | `{ "status": { "type": "string", "example": "error" }, "message": { "type": "string" } }` |
+
+### 10. List Recent Reviews
+
+#### `/v1/reviews/list-recent`
+**HTTP Method:** `GET`
+
+**Summary:** List recent reviews about a program
+
+**Description:** Retrieves a list of the most recent reviews for a specific educational program.
+
+**Parameters:**
+| Name        | In   | Type    | Required | Description         |
+|-------------|------|---------|----------|---------------------|
+| `programId` | query | integer | true     | ID of the program   |
+
+**Responses:**
+| HTTP Status Code | Description           | Content Type     | Schema                                                                 |
+|------------------|-----------------------|------------------|------------------------------------------------------------------------|
+| `200`            | List of recent reviews | `application/json` | `{ "status": { "type": "string", "example": "success" }, "data": { "type": "array", "items": { "type": "object" } } }` |
+| `500`            | Internal Server Error | `application/json` | `{ "status": { "type": "string", "example": "error" }, "message": { "type": "string" } }` |
+
+### 11. List Active Reviews by Year
+
+#### `/v1/reviews/list-active-by-year`
+**HTTP Method:** `GET`
+
+**Summary:** List active reviews about a program grouped by year
+
+**Description:** Retrieves a list of active reviews for a specific program, grouped by the year the review was submitted.
+
+**Parameters:**
+| Name        | In   | Type    | Required | Description         |
+|-------------|------|---------|----------|---------------------|
+| `programId` | query | integer | true     | ID of the program   |
+
+**Responses:**
+| HTTP Status Code | Description                            | Content Type     | Schema                                                                 |
+|------------------|----------------------------------------|------------------|------------------------------------------------------------------------|
+| `200`            | List of active reviews grouped by year | `application/json` | `{ "status": { "type": "string", "example": "success" }, "data": { "type": "array", "items": { "type": "object" } } }` |
+| `500`            | Internal Server Error                  | `application/json` | `{ "status": { "type": "string", "example": "error" }, "message": { "type": "string" } }` |
+
+### 12. List Active Randomized Reviews
+
+#### `/v1/reviews/list-active-randomized`
+**HTTP Method:** `GET`
+
+**Summary:** List active randomized reviews about a program
+
+**Description:** Retrieves a list of active reviews for a specific program, presented in a randomized order.
+
+**Parameters:**
+| Name        | In   | Type    | Required | Description         |
+|-------------|------|---------|----------|---------------------|
+| `programId` | query | integer | true     | ID of the program   |
+
+**Responses:**
+| HTTP Status Code | Description                         | Content Type     | Schema                                                                 |
+|------------------|-------------------------------------|------------------|------------------------------------------------------------------------|
+| `200`            | List of active randomized reviews | `application/json` | `{ "status": { "type": "string", "example": "success" }, "data": { "type": "array", "items": { "type": "object" } } }` |
+| `500`            | Internal Server Error               | `application/json` | `{ "status": { "type": "string", "example": "error" }, "message": { "type": "string" } }` |
+
+### 13. List Active Reviews by Season
+
+#### `/v1/reviews/list-active-by-season`
+**HTTP Method:** `GET`
+
+**Summary:** List active reviews about a program grouped by season
+
+**Description:** Retrieves a list of active reviews for a specific program, grouped by the season in which the review was submitted. The definition of "season" is not specified in the OpenAPI document and would need to be clarified.
+
+**Parameters:**
+| Name        | In   | Type    | Required | Description         |
+|-------------|------|---------|----------|---------------------|
+| `programId` | query | integer | true     | ID of the program   |
+
+**Responses:**
+| HTTP Status Code | Description                              | Content Type     | Schema                                                                 |
+|------------------|------------------------------------------|------------------|------------------------------------------------------------------------|
+| `200`            | List of active reviews grouped by season | `application/json` | `{ "status": { "type": "string", "example": "success" }, "data": { "type": "array", "items": { "type": "object" } } }` |
+| `500`            | Internal Server Error                    | `application/json` | `{ "status": { "type": "string", "example": "error" }, "message": { "type": "string" } }` |
+<pre></pre>
+
 # Stored procedures
 <pre> 
 --  Get Countries
