@@ -392,43 +392,164 @@ The base URL for this API is not explicitly defined in the provided OpenAPI spec
 
 # Stored procedures
 <pre> 
---  Get Countries
-CREATE PROCEDURE sp_get_countries()
+-- ============= LIST of Stored Procedures =============== --
+
+-- 1. List of Active Countries --
+
+CREATE PROCEDURE ListActiveCountries()
 BEGIN
-    SELECT id, name, code FROM Countries WHERE is_active = 1;
+    SELECT id, name, code
+    FROM Countries
+    WHERE is_active = 1;
 END;
 
---  Get Cities by Country
-CREATE PROCEDURE sp_get_cities_by_country(IN p_country_id INT)
+-- 2. List of Active Cities Based on Country ID --
+
+CREATE PROCEDURE ListActiveCitiesByCountry(IN countryId INT)
 BEGIN
-    SELECT id, name FROM Cities WHERE country_id = p_country_id AND is_active = 1;
+    SELECT id, name
+    FROM Cities
+    WHERE is_active = 1 AND country_id = countryId;
 END;
 
---  Get Institutions by City
-CREATE PROCEDURE sp_get_institutions_by_city(IN p_city_id INT)
+-- 3. List of Active Institutions Based on Selected City that Belongs to a Specific Country --
+
+CREATE PROCEDURE ListActiveInstitutionsByCity(IN cityId INT)
 BEGIN
-    SELECT id, name FROM Institutions WHERE city_id = p_city_id AND is_active = 1;
+    SELECT id, name
+    FROM Institutions
+    WHERE is_active = 1 AND city_id = cityId;
 END;
 
---  Get Faculties by Institution
-CREATE PROCEDURE sp_get_faculties_by_institution(IN p_institution_id INT)
+-- 4. List of Active Faculties from That Specific Institution --
+
+CREATE PROCEDURE ListActiveFacultiesByInstitution(IN institutionId INT)
 BEGIN
-    SELECT id, name FROM Faculties WHERE institution_id = p_institution_id AND is_active = 1;
+    SELECT id, name
+    FROM Faculties
+    WHERE is_active = 1 AND institution_id = institutionId;
 END;
 
---  Get Programs by Faculty
-CREATE PROCEDURE sp_get_programs_by_faculty(IN p_faculty_id INT)
+-- 5. List of Active Programs Based on That Specific Faculty of Education --
+
+CREATE PROCEDURE ListActiveProgramsByFaculty(IN facultyId INT)
 BEGIN
-    SELECT id, name, code, details FROM Programs WHERE faculty_id = p_faculty_id AND is_active = 1;
+    SELECT id, name
+    FROM Programs
+    WHERE is_active = 1 AND faculty_id = facultyId;
 END;
 
---  Get Reviews by Program
-CREATE PROCEDURE sp_get_reviews_by_program(IN p_program_id INT)
+-- 6. List of Active Participants Based on the Year --
+
+CREATE PROCEDURE ListActiveParticipantsByYear(IN year INT)
 BEGIN
-    SELECT pr.id, pr.rating, pr.comment, p.name as participant_name
-    FROM ProgramReviews pr
-    JOIN Participants p ON pr.participant_id = p.id
-    WHERE pr.program_id = p_program_id;
+    SELECT id, full_name, email
+    FROM Participants
+    WHERE is_active = 1 AND YEAR(CURDATE()) = year;
+END;
+
+-- 7. List of All Participants Based on the Year --
+
+CREATE PROCEDURE ListAllParticipantsByYear(IN year INT)
+BEGIN
+    SELECT id, full_name, email
+    FROM Participants
+    WHERE YEAR(CURDATE()) = year;
+END;
+
+-- 8. List of Reviews by a Participant -- IMP --
+
+CREATE PROCEDURE ListReviewsByParticipant(IN participantId INT)
+BEGIN
+    SELECT r.id, r.program_id, r.rating, r.comment, p.full_name, YEAR(r.review_date) AS year_of_review
+    FROM ProgramReviews r
+    JOIN Participants p ON r.participant_id = p.id
+    WHERE r.participant_id = participantId;
+END;
+
+-- 9. List of Recent Reviews About a Program --
+
+CREATE PROCEDURE ListRecentReviewsByProgram(IN programId INT)
+BEGIN
+    SELECT r.id, r.participant_id, r.rating, r.comment, p.full_name, YEAR(r.review_date) AS year_of_review
+    FROM ProgramReviews r
+    JOIN Participants p ON r.participant_id = p.id
+    WHERE r.program_id = programId
+    ORDER BY r.review_date DESC
+    LIMIT 10;
+END;
+
+-- 10. List of Active Reviews About a Program Grouped by Year --
+
+CREATE PROCEDURE ListActiveReviewsByProgramGroupedByYear(IN programId INT)
+BEGIN
+    SELECT YEAR(r.review_date) AS year_of_review, COUNT(*) AS review_count, p.full_name
+    FROM ProgramReviews r
+    JOIN Participants p ON r.participant_id = p.id
+    WHERE r.program_id = programId AND r.is_active = 1
+    GROUP BY YEAR(r.review_date), p.full_name;
+END;
+
+-- 11. List of Active Randomized Reviews About a Program --
+
+CREATE PROCEDURE ListActiveRandomizedReviewsByProgram(IN programId INT)
+BEGIN
+    SELECT r.id, r.participant_id, r.rating, r.comment, p.full_name, YEAR(r.review_date) AS year_of_review
+    FROM ProgramReviews r
+    JOIN Participants p ON r.participant_id = p.id
+    WHERE r.program_id = programId AND r.is_active = 1
+    ORDER BY RAND()
+    LIMIT 10;
+END;
+
+-- 12. List of Active Reviews About a Program Grouped by Season --
+
+CREATE PROCEDURE ListActiveReviewsByProgramGroupedBySeason(IN programId INT)
+BEGIN
+    SELECT
+        CASE
+            WHEN MONTH(r.review_date) IN (12, 1, 2) THEN 'Winter'
+            WHEN MONTH(r.review_date) IN (3, 4, 5) THEN 'Spring'
+            WHEN MONTH(r.review_date) IN (6, 7, 8) THEN 'Summer'
+            ELSE 'Fall'
+        END AS season,
+        COUNT(*) AS review_count,
+        p.full_name,
+        YEAR(r.review_date) AS year_of_review
+    FROM ProgramReviews r
+    JOIN Participants p ON r.participant_id = p.id
+    WHERE r.program_id = programId AND r.is_active = 1
+    GROUP BY season, p.full_name, YEAR(r.review_date);
+END;
+
+-- ============= Web User Registration and Activation Stored Procedures =============== --
+
+-- 13. Register Web User --
+
+CREATE PROCEDURE RegisterWebUser(
+    IN full_name VARCHAR(255),
+    IN email VARCHAR(255),
+    IN password VARCHAR(255),
+    IN registration_date DATETIME,
+    IN activation_token VARCHAR(255),
+    IN activation_expiry DATETIME
+)
+BEGIN
+    INSERT INTO Web_Users (full_name, email, password, registration_date, activation_token, activation_expiry)
+    VALUES (full_name, email, password, registration_date, activation_token, activation_expiry);
+END;
+
+-- 14. Activate Web User --
+
+CREATE PROCEDURE ActivateWebUser(
+    IN in_email VARCHAR(255),
+    IN in_activation_token VARCHAR(255)
+)
+BEGIN
+    UPDATE Web_Users
+    SET is_active = TRUE, activation_token = NULL, activation_expiry = NULL
+    WHERE email = in_email AND activation_token = in_activation_token AND activation_expiry > NOW();
+    SELECT ROW_COUNT(); -- Returns the number of rows updated (1 if successful, 0 otherwise)
 END;
 
 </pre>
