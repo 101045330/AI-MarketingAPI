@@ -68,6 +68,67 @@ app.get("/v1/users/list", (request, response) => {
 
 })
 
+//marketing // country //list
+
+app.get("/v1/countries/list", (request, response) => {
+
+    pool.query("SELECT * FROM Countries ORDER BY name ASC", [], (error, result) => {
+        response.json(
+            {
+                status: "success",
+                data: result
+            }
+        )
+    });
+
+})
+
+//marketing //cities //list by country_id
+app.get("/v1/cities/get", (request, response) => {
+
+    const id = request.query.id;
+
+    pool.query("SELECT id, name, country_id FROM Cities WHERE country_id = ? ORDER BY name ASC", [id], (error, result) => {
+        response.json(
+            {
+                status: "success",
+                data: result
+            }
+        )
+    });
+})
+
+//marketing //instutions //list by city_id
+app.get("/v1/cities/get", (request, response) => {
+
+    const id = request.query.id;
+
+    pool.query("SELECT id, name, city_id FROM Institutions WHERE country_id = ? ORDER BY name ASC", [id], (error, result) => {
+        response.json(
+            {
+                status: "success",
+                data: result
+            }
+        )
+    });
+})
+
+
+///v1/cities/get
+
+app.get("/v1/users/get", (request, response) => {
+
+    const id = request.query.id;
+
+    pool.query("SELECT fname, lname, email FROM users WHERE id = ?", [id], (error, result) => {
+        response.json(
+            {
+                status: "success",
+                data: result
+            }
+        )
+    });
+})
 app.get("/v1/users/get", (request, response) => {
 
     const id = request.query.id;

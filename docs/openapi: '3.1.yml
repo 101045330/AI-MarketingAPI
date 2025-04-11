@@ -1,0 +1,32 @@
+openapi: '3.1.1'
+info:
+  title: API for third party marketers to review the regionally provided curriculum
+  version: '1.0'
+servers:
+  - url: https://{url} 
+    variables:
+      url:
+        default: "fictional-space-garbanzo-wrg77xpgvqr6cggp-3001.app.github.dev/"
+        description: ""
+paths:
+  /v1/countries/list:
+    get:
+      description: List all countries alphabetically sorted in ascending order
+      responses:
+        '200':
+          description: OK
+
+  /v1/cities/get:
+    get:
+      description: List all cities alphabetically sorted in ascending order
+      parameters:
+        - name: id
+          in: query
+          description: country id that connects the Cities with Countries 
+          schema:
+            type: number
+            default: 1
+      responses:
+        '200':
+          description: OK 
+
