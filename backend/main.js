@@ -68,6 +68,7 @@ app.get('/v1/webusers/register', (request, response) => {
 
 // /v1/webusers/register
 
+
 app.post("/v1/webusers/register", (request, response) => {
     const full_name = request.body.full_name;
     const email = request.body.email;

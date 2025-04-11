@@ -16,7 +16,6 @@ paths:
         '200':
           description: OK
 
-
   /v1/cities/get:
     get:
       description: List all cities alphabetically sorted in ascending order
