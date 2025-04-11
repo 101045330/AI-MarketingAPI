@@ -1,0 +1,139 @@
+openapi: '3.1.1'
+info:
+  title: API for third party marketers to review the regionally provided curriculum
+  version: '1.0'
+servers:
+  - url: https://{url}
+    variables:
+      url:
+        default: fictional-space-garbanzo-wrg77xpgvqr6cggp-3001.app.github.dev
+        description: Dev environment URL
+
+paths:
+  /v1/countries/list:
+    get:
+      description: List all countries alphabetically sorted in ascending order
+      responses:
+        '200':
+          description: OK
+
+  /v1/cities/get:
+    get:
+      description: List all cities alphabetically sorted in ascending order
+      parameters:
+        - name: id
+          in: query
+          description: Returns only cities in the specified country (pass `country_id`)
+          schema:
+            type: number
+            default: 1
+      responses:
+        '200':
+          description: OK
+
+  /v1/institutions/get:
+    get:
+      description: List all institutions alphabetically sorted in ascending order
+      parameters:
+        - name: id
+          in: query
+          description: Returns only institutions in the specified city (pass `city_id`)
+          schema:
+            type: number
+            default: 1
+      responses:
+        '200':
+          description: OK
+
+  /v1/faculties/get:
+    get:
+      description: List all faculties alphabetically sorted in ascending order
+      parameters:
+        - name: id
+          in: query
+          description: Returns only faculties in the specified institution (pass `institution_id`)
+          schema:
+            type: number
+            default: 1
+      responses:
+        '200':
+          description: OK
+
+  /v1/programs/get:
+    get:
+      description: List all active programs alphabetically sorted in ascending order
+      parameters:
+        - name: id
+          in: query
+          description: Returns only programs under the specified faculty (pass `faculty_id`)
+          schema:
+            type: number
+            default: 1
+      responses:
+        '200':
+          description: OK
+
+  /v1/programreviews/get:
+    get:
+      description: List the latest 25 program reviews from participants
+      parameters:
+        - name: id
+          in: query
+          description: Returns reviews for the specified program (pass `program_id`)
+          schema:
+            type: number
+            default: 1
+      responses:
+        '200':
+          description: OK
+
+  /v1/webusers/register:
+    post:
+      summary: Register a new web user
+      description: Register a new web user if registration is open.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                full_name:
+                  type: string
+                  example: MIN G
+                email:
+                  type: string
+                  format: email
+                  example: min.g@min.net
+                password:
+                  type: string
+                  format: password
+                  example: Strong_Password-123
+              required:
+                - full_name
+                - email
+                - password
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: New user added as registration is still open
+        '400':
+          description: Bad Request — missing or invalid fields
+        '401':
+          description: Unauthorized — access denied
+        '403':
+          description: Forbidden — registration is closed
+        '409':
+          description: Conflict — email already exists
+
+
