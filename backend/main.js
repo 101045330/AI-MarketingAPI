@@ -71,7 +71,7 @@ app.get('/v1/webusers/register', (request, response) => {
 app.post("/v1/webusers/register", (request, response) => {
     const full_name = request.body.full_name;
     const email = request.body.email;
-    const password = md5(request.body.password);
+    const password = md5(request.body.password); 
     const api_key_secret = md5(rand(10001, 99999999999));
     const api_key = md5(full_name + email + api_key_secret); // Removed concat()
 

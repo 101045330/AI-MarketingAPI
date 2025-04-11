@@ -16,13 +16,14 @@ paths:
         '200':
           description: OK
 
+
   /v1/cities/get:
     get:
       description: List all cities alphabetically sorted in ascending order
       parameters:
         - name: id
           in: query
-          description: country id that connects the Cities with Countries 
+          description: pass country_id as an id, find out only related cities inside specific country 
           schema:
             type: number
             default: 1
@@ -30,3 +31,95 @@ paths:
         '200':
           description: OK 
 
+  /v1/institutions/get:
+    get:
+      description: List all institutions alphabetically sorted in ascending order 
+      parameters:
+        - name: id
+          in: query
+          description: pass city_id as an id, find out only related instutions inside specific city
+          schema:
+            type: number
+            default: 1
+      responses:
+        '200':
+          description: OK 
+
+  /v1/faculties/get:
+    get:
+      description: List all faculties alphabetically sorted in ascending order
+      parameters:
+        - name: id
+          in: query
+          description: pass instution id, find out only related faculties under specific instution
+          schema:
+            type: number
+            default: 1
+      responses:
+        '200':
+          description: OK 
+
+  /v1/programs/get:
+    get:
+      description: List all programs alphabetically sorted in ascending order that are active
+      parameters:
+        - name: id
+          in: query
+          description: pass faculty id, find out only related programs under specific faculty
+          schema:
+            type: number
+            default: 1
+      responses:
+        '200':
+          description: OK 
+
+  /v1/programreviews/get:
+    get:
+      description: List latest 25 program reviews from participants of the program
+      parameters:
+        - name: id
+          in: query
+          description: program id attached here also finds participant name to show in the review
+          schema:
+            type: number
+            default: 1
+      responses:
+        '200':
+          description: OK 
+
+
+
+
+  /v1/webusers/register:
+      post:
+        description: Register a new web user if registration is open 
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  full_name:
+                    type: string
+                  email:
+                    type: string
+                    format: email
+                  password:
+                    type: string
+                    format: password
+                required:
+                  - full_name
+                  - email
+                  - password
+        responses:
+          '201':
+            description: Created
+          '400':
+            description: Bad Request
+          '401':
+            description: Unauthorized
+          '403':
+            description: Forbidden
+          '409':
+            description: Conflict (Email already exists)
