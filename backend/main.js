@@ -13,6 +13,7 @@ const pool = mysql.createPool({
 
 // Set up the API
 const express = require('express')
+
 var cors = require('cors');
 const bodyParser = require('body-parser')
 const app = express()
@@ -48,12 +49,53 @@ app.listen(port, () => {
 // Spit out data
 
 app.get('/', (request, response) => {
+    //res.redirect('/v1/webusers/register/');
     response.json(
         {
-            info: 'Backend for GBC Library, set up by Chris K!'
+            info: 'Unauthorised access !'
         }
     )
 })
+
+
+////////////////////////////////
+
+/*
+const CAPTCHA_SECRET_KEY = "recaptcha_secret"; // Replace with actual secret
+
+app.post("/", async (req, res) => {
+    const { full_name, email, password, captchaToken } = req.body;
+
+    if (!full_name || !email || !password || !captchaToken) {
+        return res.status(400).json({ status: "error", message: "Missing fields or captcha" });
+    }
+
+    try {
+        // Verify captcha with Google
+        const captchaVerifyResponse = await axios.post(
+            `https://www.google.com/recaptcha/api/siteverify`,
+            new URLSearchParams({
+                secret: CAPTCHA_SECRET_KEY,
+                response: captchaToken
+            })
+        );
+
+        const { success, score } = captchaVerifyResponse.data;
+
+        if (!success || (score !== undefined && score < 0.5)) {
+            return res.status(403).json({ status: "error", message: "Captcha verification failed" });
+        }
+
+        // Call internal register route logic
+        req.url = "/v1/webusers/register";
+        app._router.handle(req, res, () => {});
+        
+    } catch (error) {
+        console.error("Captcha verification error:", error);
+        res.status(500).json({ status: "error", message: "Internal server error" });
+    }
+});
+*/
 
 /*
 app.get('/v1/webusers/register', (request, response) => {
@@ -72,7 +114,7 @@ app.get('/v1/webusers/register', (request, response) => {
 app.post("/v1/webusers/register", (request, response) => {
     const full_name = request.body.full_name;
     const email = request.body.email;
-    const password = md5(request.body.password); 
+    const password = md5(request.body.password);
     const api_key_secret = md5(rand(10001, 99999999999));
     const api_key = md5(full_name + email + api_key_secret); // Removed concat()
 
@@ -101,30 +143,6 @@ app.post("/v1/webusers/register", (request, response) => {
     );
 });
 
-
-app.post('/v1/webusers/register1111', (req, res) => {
-    const { full_name, email, password } = req.body;
-    // Implement your registration logic here
-   // res.status(201).json({ message: 'User registered successfully' });
-});
-
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
-});
-
-
-app.get("/v1/users/list", (request, response) => {
-
-    pool.query("SELECT fname, lname, email FROM users ORDER BY id", [], (error, result) => {
-        response.json(
-            {
-                status: "success",
-                data: result
-            }
-        )
-    });
-
-})
 
 //marketing // country //list
 
@@ -169,7 +187,7 @@ app.get("/v1/instutions/get", (request, response) => {
             }
         )
     });
-}) 
+})
 
 //marketing //faculties //list faculties by institution_id
 app.get("/v1/faculties/get", (request, response) => {
@@ -205,7 +223,7 @@ app.get("/v1/programs/get", (request, response) => {
 app.get("/v1/programreviews/get", (request, response) => {
 
     const id = request.query.id;
-/*SELECT  pr.id, pr.review,     pr.rating,     pr.created_date,     pr.program_id,     COALESCE(p.alias_if_any, p.name) AS participant_name FROM ProgramReviews pr JOIN  Participants p ON pr.participant_id = p.id WHERE   pr.program_id = 1 ORDER BY  pr.id DESC LIMIT 2; */
+    /*SELECT  pr.id, pr.review,     pr.rating,     pr.created_date,     pr.program_id,     COALESCE(p.alias_if_any, p.name) AS participant_name FROM ProgramReviews pr JOIN  Participants p ON pr.participant_id = p.id WHERE   pr.program_id = 1 ORDER BY  pr.id DESC LIMIT 2; */
     pool.query("SELECT  pr.id,pr.review,pr.rating,pr.created_date,pr.program_id,COALESCE(p.alias_if_any, p.name) AS participant_name FROM ProgramReviews pr JOIN  Participants p ON pr.participant_id = p.id WHERE   pr.program_id = ? ORDER BY  pr.id DESC LIMIT 25", [id], (error, result) => {
         response.json(
             {
@@ -232,9 +250,8 @@ app.get("/v1/reviews/get", (request, response) => {
 });
 
 
-
-///v1/cities/get
-
+//not used, here onward
+/*
 app.get("/v1/users/get", (request, response) => {
 
     const id = request.query.id;
@@ -248,6 +265,9 @@ app.get("/v1/users/get", (request, response) => {
         )
     });
 })
+*/
+
+/*
 app.get("/v1/users/get", (request, response) => {
 
     const id = request.query.id;
@@ -261,7 +281,10 @@ app.get("/v1/users/get", (request, response) => {
         )
     });
 })
+    */
 
+
+/*
 app.post("/v1/users/create", (request, response) => {
 
     const fname = request.body.fname;
@@ -281,9 +304,8 @@ app.post("/v1/users/create", (request, response) => {
 
     )
 
-})
-
-
+});
+    */
 
 
 
