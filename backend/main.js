@@ -15,7 +15,8 @@ const pool = mysql.createPool({
 const express = require('express')
 
 var cors = require('cors');
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
+const md5 = require('md5');
 const app = express()
 const port = 3001
 
@@ -115,8 +116,8 @@ app.post("/v1/webusers/register", (request, response) => {
     const full_name = request.body.full_name;
     const email = request.body.email;
     const password = md5(request.body.password);
-    const api_key_secret = md5(rand(10001, 99999999999));
-    const api_key = md5(strtolower(full_name) + strtolower(email) + api_key_secret); // Removed concat()
+    const api_key_secret = md5(Math.random());
+    const api_key = md5((full_name.toLowerCase()) + (email.toLowerCase()) + api_key_secret); // Removed concat()
 
     const is_active = 0;
 
